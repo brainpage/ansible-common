@@ -1,0 +1,18 @@
+#!/bin/bash
+{% if ansible_machine=='x86_64' %}
+JDK_FILENAME="jdk-{{ java_version }}-linux-x64.rpm"
+{% else %}
+JDK_FILENAME="jdk-{{ java_version }}-linux-i586.rpm"
+{% endif %}
+
+if [ ! -f /usr/bin/java ]; then
+
+if [ ! -f /usr/local/src/$JDK_FILENAME ]; then
+
+    wget -O /usr/local/src/$JDK_FILENAME {{ java_baseurl }}$JDK_FILENAME 
+
+fi
+
+rpm -U /usr/local/src/$JDK_FILENAME
+fi
+

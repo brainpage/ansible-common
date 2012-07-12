@@ -1,0 +1,6 @@
+- name: reload monit
+  action: service name=monit state=reloaded
+- name: reload ganglia
+  action: service name=gmond state=reloaded
+- name: reload nginx
+  action: service name=nginx state=reloaded

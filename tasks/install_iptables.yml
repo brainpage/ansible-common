@@ -1,0 +1,9 @@
+---
+#IMPORTANT: This task is NOT idempotent.  ONLY RUN ON NEW MACHINES
+- name: setup base IPTables
+  action: template src='common/files/iptables' dest='/etc/sysconfig/iptables' mode=0600
+
+- name: reload IPTables
+  action: shell /sbin/iptables-multi restore < /etc/sysconfig/iptables
+
+

@@ -1,0 +1,19 @@
+---
+# Installs ntp using default configuration.  No options
+#
+- name: install ntp
+  action: yum pkg=ntp state=installed
+
+- name: setup iptables for ntpd
+  action: iptables chain="OUTPUT" udport=123
+
+- name: setupiptables for ntpd (input)
+  action: iptables chain="INPUT" usport=123
+
+- name: start ntp
+  action: service name=ntpd state=started enabled=yes
+  only_if: "'$ansible_bios_version' != 'VirtualBox'"
+
+- name: stop ntp
+  action: service name=ntpd state=stopped enabled=no
+  only_if: "'$ansible_bios_version' == 'VirtualBox'"

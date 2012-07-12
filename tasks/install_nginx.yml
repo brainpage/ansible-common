@@ -1,0 +1,50 @@
+---
+# install monit and munin
+- name: install nginx
+  action: yum pkg=nginx state=installed
+
+- name: install $item
+  action: yum pkg=$item state=installed
+  with_items:
+    - php
+    - spawn-fcgi
+
+- name: copy nginx conf
+  action: copy src="common/files/nginx.conf" dest="/etc/nginx/nginx.conf" mode=0644
+  notify:
+    - reload nginx
+
+- name: copy php init
+  action: copy src="common/files/fcgi-php-init" dest="/etc/init.d/php_cgi" mode=755
+
+- name: open iptables
+  action: iptables chain="INPUT" tdport=$item
+  with_items:
+    - 80
+    - 443
+
+- name: add file to monit
+  action: copy src="common/files/nginx.monit.conf" dest="/etc/monit.d/nginx.conf"
+  notify:
+    - reload monit
+
+- name: add ganglie graph config
+  action: copy src="common/files/nginx.ganglia.graph.$item" dest="/etc/ganglia/graph.d/$item"
+  with_items:
+    - nginx_accepts_ratio_report.php
+    - nginx_scoreboard_report.php
+
+- name: add ganglia python module
+  action: copy src="common/files/nginx.ganglia.py" dest="/usr/lib64/ganglia/python_modules/nginx_status.py"
+
+- name: add ganglia config
+  action: copy src="common/files/nginx.ganglia.pyconf" dest="/etc/ganglia/conf.d/nginx_status.pyconf"
+  notify:
+    - reload ganglia
+
+- name: start php_cgi
+  action: service name=php_cgi state=started enabled=yes
+
+- name: start nginx
+  action: service name=nginx state=started enabled=yes
+

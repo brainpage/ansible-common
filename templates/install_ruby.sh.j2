@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# CentOS rbenv system wide installation script
+# Forked from https://gist.github.com/1237417
+
+# Installs rbenv system wide on CentOS 5/6, also allows single user installs.
+
+# Install pre-requirements
+yum install -y wget gcc-c++ patch readline readline-devel zlib zlib-devel libyaml-devel libffi-devel openssl-devel \
+  make bzip2 autoconf automake libtool bison iconv-devel 
+
+SRC_DIR=/usr/local/src
+
+# Check if /usr/local/rbenv already exists
+if [[ -d "/usr/local/rbenv" ]]; then
+  echo >&2  "/usr/local/rbenv already exists. Not no-install rbenv.";
+else
+
+# Install rbenv
+wget -O /usr/local/src/rbenv.tar.gz https://github.com/sstephenson/rbenv/tarball/v0.3.0
+
+# Check if clone succesful
+if [ $? -gt 0 ]; then
+  echo >&2  "Error downloading file! See above.";
+  exit 1;
+fi
+
+tar -xzvf /usr/local/src/rbenv.tar.gz -C /usr/local
+mv /usr/local/sstephenson-rbenv-b10bdb1 /usr/local/rbenv
+mkdir /usr/local/rbenv/shims
+mkdir /usr/local/rbenv/versions
+# Add rbenv to the path
+echo '# rbenv setup - only add RBENV PATH variables if no single user install found' > /etc/profile.d/rbenv.sh
+echo 'if [[ ! -d "${HOME}/.rbenv" ]]; then' >> /etc/profile.d/rbenv.sh
+echo '  export RBENV_ROOT=/usr/local/rbenv' >> /etc/profile.d/rbenv.sh
+echo '  export PATH="$RBENV_ROOT/bin:$PATH"' >> /etc/profile.d/rbenv.sh
+echo '  eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh
+echo 'fi'  >> /etc/profile.d/rbenv.sh
+
+chmod +x /etc/profile.d/rbenv.sh
+fi
+{% for rb_version in rb_versions %}
+RUBY_DIR=$SRC_DIR/ruby-{{ rb_version }}
+{% if location=='china' %} 
+#http://app.brainpage.cn/system/
+RUBY_DOWNLOAD="http://ruby.taobao.org/mirrors/ruby/ruby-{{ rb_version }}.tar.gz"
+{% else %}
+RUBY_DOWNLOAD="http://ftp.ruby-lang.org/pub/ruby/ruby-{{ rb_version }}.tar.gz"
+{% endif %}
+
+if [[ -d "/usr/local/rbenv/versions/{{ rb_version }}" ]]; then
+   echo >&2 "Ruby $RUBY_VERSION already installed.  Skipping"
+else
+  wget -O $RUBY_DIR.tar.gz $RUBY_DOWNLOAD
+  tar -xzvf $RUBY_DIR.tar.gz -C $SRC_DIR
+  cd $RUBY_DIR
+  ./configure -q --disable-install-rdoc --prefix=/usr/local/rbenv/versions/{{ rb_version }}
+  make
+  make install
+  RBENV_ROOT=/usr/local/rbenv /usr/local/rbenv/bin/rbenv rehash
+  RBENV_ROOT=/usr/local/rbenv /usr/local/rbenv/bin/rbenv global {{ rb_version }}
+  gem install bundler
+fi
+{% endfor %}
+exit 0

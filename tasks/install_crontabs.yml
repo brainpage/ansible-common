@@ -1,0 +1,8 @@
+---
+# Installs crontabs using default configuration.  No options
+#
+- name: install ntp
+  action: yum pkg=crontabs state=installed
+
+- name: start crontabs
+  action: service name=crond state=started enabled=yes

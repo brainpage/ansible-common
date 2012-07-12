@@ -1,0 +1,36 @@
+#######################
+# Install ganglia node with default aspects monitored
+# Set the following vars: ganglia_cluster ganglia_owner, ganglia_meta.  For example:
+# vars:
+#   ganglia_cluster: jonathanpalley.com
+#   ganglia_owner: "Jonathan Palley"
+#   ganglia_meta: META_IP
+#########################
+---
+- name: install ganglia node
+  action: yum pkg=ganglia-gmond state=installed
+
+- name: install ganglia python module support
+  action: yum pkg=ganglia-gmond-python
+
+- name: write gmond.conf
+  action: template src='common/templates/ganglia.conf.j2' dest='/etc/ganglia/gmond.conf'
+
+- name: write multicpu
+  action: copy src='common/files/ganglia.multicpu.conf' dest='/etc/ganglia/conf.d/multicpu.conf'
+
+- name: setup recv iptables tcp ${groups['ganglia_meta'][0]['internal_ip']}
+  action: iptables chain='INPUT' tdport=8649 s=${groups.ganglia_meta[0].internal_ip}
+  only_if: "$groups.has_key('ganglia_meta')"
+
+- name: setup send iptables
+  action: iptables chain='OUTPUT' udport=8649
+
+- name: setup recv iptables
+  action: iptables chain='INPUT' udport=8649 s="$internal_ip/24" 
+  only_if: "'$ganglia_recver'=='yes'"
+
+- name: start ganglia node
+  action: service name=gmond state=started enabled=yes
+
+

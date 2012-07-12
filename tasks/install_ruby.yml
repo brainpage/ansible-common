@@ -1,0 +1,9 @@
+---
+# MUST specific an array of rb_versions in playbook vars
+## install ruby with rbenv and uninstall system default
+- name: insure system ruby not installed
+  action: yum pkg=ruby state=removed
+- name: copy ruby install script
+  action: template src='common/templates/install_ruby.sh.j2' dest='/usr/local/src/install_ruby.sh' mode=0755
+- name: run install script
+  action: shell /usr/local/src/install_ruby.sh
