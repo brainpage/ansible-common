@@ -1,0 +1,23 @@
+---
+- name: install $item
+  action: yum pkg=$item state=installed
+  with_items:
+    - ganglia-gmetad
+
+- name: copy config file
+  action: template src='common/templates/gmetad.conf.j2' dest='/etc/ganglia/gmetad.conf' mode=0644
+
+- name: copy web installer
+  action: copy src='common/files/gmond_web_install.sh' dest='/usr/local/src/gmond_web_install.sh' mode=0755
+- name: create graph.d directory
+  action: file state="directory" dest="/etc/ganglia/graph.d"
+
+- name: run web installer
+  action: shell /usr/local/src/gmond_web_install.sh
+
+- name: start ganglia
+  action: service name=gmetad enabled=yes state=started
+
+- name: reload config
+  action: service name=gmetad state=reloaded
+
