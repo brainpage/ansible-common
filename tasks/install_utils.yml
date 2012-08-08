@@ -1,0 +1,7 @@
+---
+- name: install $item
+  action: yum pkg=$item state=installed
+  with_items:
+    - wget
+    - vim
+

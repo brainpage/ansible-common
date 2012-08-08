@@ -12,7 +12,7 @@
   only_if: "'$monit_admin'"
 
 - name: open monit admin firewall for http_proxy
-  action: iptables chain='INPUT' s="$groups['http_proxy'][0]['internal_ip']" tdport=2812
+  action: iptables chain='INPUT' s="${groups.http_proxy[0].internal_ip}" tdport=2812
   only_if: "$groups.has_key('http_proxy')"
 
 - name: write monit.conf
