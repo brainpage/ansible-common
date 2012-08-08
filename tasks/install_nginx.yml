@@ -34,8 +34,14 @@
     - nginx_accepts_ratio_report.php
     - nginx_scoreboard_report.php
 
-- name: add ganglia python module
+- name: add ganglia python module 64
   action: copy src="common/files/nginx.ganglia.py" dest="/usr/lib64/ganglia/python_modules/nginx_status.py"
+  only_if: "'$ansible_machine'=='x86_64'"
+
+- name: add ganglia python module
+  action: copy src="common/files/nginx.ganglia.py" dest="/usr/lib/ganglia/python_modules/nginx_status.py"
+  only_if: "'$ansible_machine' != 'x86_64'"
+
 
 - name: add ganglia config
   action: copy src="common/files/nginx.ganglia.pyconf" dest="/etc/ganglia/conf.d/nginx_status.pyconf"

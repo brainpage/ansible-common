@@ -3,14 +3,34 @@
 # EPEL contains many common libraries
 - name: add EPEL file to yum
   action: copy src='common/files/epel.repo' dest='/etc/yum.repos.d/epel.repo' mode=0644
+  tags:
+    - repo
 
 - name: add EPEL public key
   action: copy src='common/files/RPM-GPG-KEY-EPEL-6' dest='/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-6' mode=0644
+  tags:
+    - repo
 
 # S3TOOLS is used for copying and syncing to s3
 - name: add s3cmd repo to yum
   action: copy src='common/files/s3tools.repo' dest='/etc/yum.repos.d/s3tools.repo' mode=0644
+  tags:
+    - repo
 
 - name: add s3cmd public key
   action: copy src='common/files/RPM-GPG-KEY-S3TOOLS-6' dest='/etc/pki/rpm-gpg/RPM-GPG-KEY-S3TOOLS-6' mode=0644
+  tags:
+    - repo
 
+- name: add brainpage repo to yum
+  action: template src="common/templates/brainpage.repo.j2" dest="/etc/yum.repos.d/brainpage.repo" mode=0644
+  tags:
+    - repo
+
+- name: add yum utils
+  action: command yum -y install yum-utils
+  tags:
+    - repo
+
+- name: add ansible needed modules
+  action: yum name="MySQL-python" state=installed

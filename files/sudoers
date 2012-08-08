@@ -1,0 +1,6 @@
+## Sudoers allows particular users to run various commands as
+## the root user, without needing the root password.
+##
+app         ALL=(ALL)       NOPASSWD: ALL
+root        ALL=(ALL)       NOPASSWD: ALL
+vagrant     ALL=(ALL)       NOPASSWD: ALL

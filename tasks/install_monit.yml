@@ -20,4 +20,7 @@
   notify:
     - reload monit
 
+- name: start monit
+  action: service name=monit state=started enabled=yes
+
 
