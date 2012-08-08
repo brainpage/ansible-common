@@ -1,0 +1,12 @@
+---
+- name: instal mysql
+  action: yum pkg=mysql-server state=installed
+
+- name: start mysql
+  action: service name=mysql state=started enabled=yes
+
+- name: copy monit file
+  action: copy src="common/files/mysql.monit.conf" dest="/etc/monit.d/mysql.conf"
+
+- name: restart monit
+  action: service name=monit state=restarted

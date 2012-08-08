@@ -21,7 +21,7 @@ globals {
  */
 cluster {
   name = {{ cluster }}
-  owner = {{ ganglia_owner }}
+  owner = "NA"
   latlong = "unspecified"
   url = {{ cluster }}
 }
@@ -43,9 +43,6 @@ udp_send_channel {
   #mcast_join = 239.2.11.71
   {% if ganglia_recv %}
   host = {{ ganglia_recv }}
-  {% endif %}
-  {% if groups['ganglia_recv'] %}
-  host = {{ groups['ganglia_recv'][0]['internal_ip'] }}
   {% endif %}
   port = 8649
   ttl = 1

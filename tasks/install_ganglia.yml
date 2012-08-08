@@ -19,7 +19,7 @@
 - name: write multicpu
   action: copy src='common/files/ganglia.multicpu.conf' dest='/etc/ganglia/conf.d/multicpu.conf'
 
-- name: setup recv iptables tcp ${groups['ganglia_meta'][0]['internal_ip']}
+- name: setup recv iptables tcp ${groups.ganglia_meta[0].internal_ip]}
   action: iptables chain='INPUT' tdport=8649 s=${groups.ganglia_meta[0].internal_ip}
   only_if: "$groups.has_key('ganglia_meta')"
 

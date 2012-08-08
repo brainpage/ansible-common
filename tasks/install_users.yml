@@ -1,0 +1,22 @@
+---
+# Setup app user
+- name: create app user
+  action: user name=app createhome=yes
+
+- name: update sshd_config
+  action: copy src='common/files/sshd_conf' dest='/etc/ssh/sshd_config' mode=0600
+
+- name: create ssh directory
+  action: file path='/home/app/.ssh' group=app owner=app state=directory
+
+- name: write authorized keys
+  action: template src='common/templates/authorized_keys.j2' dest='/home/app/.ssh/authorized_keys' mode=0600 group=app owner=app
+
+- name: reload ssh
+  action: service name=sshd state=reloaded
+
+- name: setup sudoers file
+  action: copy src='common/files/sudoers' dest='/etc/sudoers' mode=0440
+
+
+

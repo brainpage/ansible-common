@@ -1,0 +1,8 @@
+---
+- hosts: repo
+  user: app
+  sudo: true
+
+  tasks:
+    - include: tasks/install_yum_repo.yml
+

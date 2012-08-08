@@ -1,0 +1,13 @@
+---
+- name: create directories
+  action: file state="directory" dest="/var/www/html/repo/centos/6/$item" 
+  with_items:
+    - x86_64
+    - i686
+  tags:
+    - createrepo
+
+- name: install createrepo
+  action: yum pkg=createrepo state=installed
+  tags:
+    - createrepo

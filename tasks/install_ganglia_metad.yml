@@ -3,6 +3,7 @@
   action: yum pkg=$item state=installed
   with_items:
     - ganglia-gmetad
+    - php-gd
 
 - name: copy config file
   action: template src='common/templates/gmetad.conf.j2' dest='/etc/ganglia/gmetad.conf' mode=0644
