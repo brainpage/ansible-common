@@ -5,22 +5,28 @@
 #################
 ---
 - name: install monit
-  action: yum pkg=monit state=installed
-
+  action: yum name=monit state=installed
+  tags:
+    - monit
 - name: open monit admin firewall for monit_admin
   action: iptables chain="INPUT" s='$monit_admin' tdport=2812
   only_if: "'$monit_admin'"
-
+  tags:
+    - monit
 - name: open monit admin firewall for http_proxy
-  action: iptables chain='INPUT' s="${groups.http_proxy[0].internal_ip}" tdport=2812
+  action: iptables chain='INPUT' s="${http_proxy}" tdport=2812 i=${private_eth}
   only_if: "$groups.has_key('http_proxy')"
+  tags:
+    - monit
 
 - name: write monit.conf
-  action: template src='common/templates/monit.conf.j2' dest='/etc/monit.conf'
+  action: template src='common/templates/monit.conf.j2' dest='/etc/monit.conf' mode=0600
   notify:
     - reload monit
-
+  tags:
+    - monit
 - name: start monit
   action: service name=monit state=started enabled=yes
-
+  tags:
+    - monit
 

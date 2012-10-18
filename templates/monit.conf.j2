@@ -112,8 +112,8 @@ set httpd port 2812 #and
 {% if monit_admin %}
      allow {{ monit_admin }}
 {% endif %}
-{% if groups['http_proxy'] %}
-    allow {{ groups['http_proxy'][0] }} #[0]['internal_ip'] }}
+{% if http_proxy %}
+    allow {{ http_proxy }}
 {% endif %}
 #     allow admin:monit      # require user 'admin' with password 'monit'
 #     allow @monit           # allow users of group 'monit' to connect (rw)

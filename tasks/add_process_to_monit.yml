@@ -1,0 +1,8 @@
+---
+- name: copy monit config file
+  action: template src=${monit_src} dest="/etc/monit.d/${monit_dest}"
+  
+- name: reload monit
+  action: service name=monit state=reloaded
+
+

@@ -31,6 +31,3 @@
   action: command yum -y install yum-utils
   tags:
     - repo
-
-- name: add ansible needed modules
-  action: yum name="MySQL-python" state=installed

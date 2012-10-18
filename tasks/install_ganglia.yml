@@ -8,29 +8,78 @@
 #########################
 ---
 - name: install ganglia node
-  action: yum pkg=ganglia-gmond state=installed
+  action: yum name=ganglia-gmond state=installed
+  tags:
+    - ganglia
+
 
 - name: install ganglia python module support
-  action: yum pkg=ganglia-gmond-python
+  action: yum name=ganglia-gmond-python
+  tags:
+    - ganglia
 
+
+- name: install tools used by ganglia scripts
+  action: yum name=$item state=installed
+  with_items:
+    - bc
+    - sysstat
+  tags:
+    - ganglia
 - name: write gmond.conf
   action: template src='common/templates/ganglia.conf.j2' dest='/etc/ganglia/gmond.conf'
+  tags:
+    - ganglia
+
 
 - name: write multicpu
   action: copy src='common/files/ganglia.multicpu.conf' dest='/etc/ganglia/conf.d/multicpu.conf'
+  tags:
+    - ganglia
+
+- name: copy network gmetric script
+  action: copy src='common/files/network_gmetric.sh' dest='/usr/local/bin/network_gmetric.sh' mode=0755
+  tags:
+    - ganglia
+
+- name: copy network gmetric script
+  action: copy src='common/files/disk_gmetric.sh' dest='/usr/local/bin/disk_gmetric.sh' mode=0755
+  tags:
+    - ganglia
+
+
+- name: copy ganglia generic cron job
+  action: copy src='common/files/ganglia.generic.cron' dest='/etc/cron.d/ganglia_generic'
+  tags:
+    - ganglia
 
 - name: setup recv iptables tcp ${groups.ganglia_meta[0].internal_ip]}
-  action: iptables chain='INPUT' tdport=8649 s=${groups.ganglia_meta[0].internal_ip}
+  action: iptables chain='INPUT' tdport=8649 s=${http_proxy} i=$private_eth
   only_if: "$groups.has_key('ganglia_meta')"
+  tags:
+    - ganglia
 
 - name: setup send iptables
-  action: iptables chain='OUTPUT' udport=8649
+  action: iptables chain='OUTPUT' udport=8649 o=$private_eth
+  tags:
+    - ganglia
 
 - name: setup recv iptables
-  action: iptables chain='INPUT' udport=8649 s="$internal_ip/24" 
+  action: iptables chain='INPUT' udport=8649 s="$internal_ip/24" i=$private_eth
   only_if: "'$ganglia_recver'=='yes'"
+  tags:
+    - ganglia
+
 
 - name: start ganglia node
   action: service name=gmond state=started enabled=yes
+  tags:
+    - ganglia
+
+- name: restart ganglia node
+  action: service name=gmond state=restarted 
+  tags:
+    - ganglia
+
 
 

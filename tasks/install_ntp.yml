@@ -2,7 +2,7 @@
 # Installs ntp using default configuration.  No options
 #
 - name: install ntp
-  action: yum pkg=ntp state=installed
+  action: yum name=ntp state=installed
 
 - name: setup iptables for ntpd
   action: iptables chain="OUTPUT" udport=123

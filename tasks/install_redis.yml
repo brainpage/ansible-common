@@ -1,0 +1,15 @@
+---
+- name: install redis
+  action: yum name=redis state=present
+
+- name: copy config file
+  action: template src="common/templates/redis.conf.j2"  dest="/etc/redis.conf"
+
+- name: start service
+  action: service name=redis state=started enabled=yes
+
+- name: copy monit file
+  action: template src="common/templates/redis.monit.conf.j2" dest="/etc/monit.d/redis.conf"
+
+- name: restart monit
+  action: service name=monit state=reloaded

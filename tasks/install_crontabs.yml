@@ -2,7 +2,11 @@
 # Installs crontabs using default configuration.  No options
 #
 - name: install crontabs
-  action: yum pkg=crontabs state=installed
+  action: yum name=crontabs state=installed
+  tags: 
+    - crontabs
 
 - name: start crontabs
   action: service name=crond state=started enabled=yes
+  tags:
+    - crontabs

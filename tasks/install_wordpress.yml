@@ -1,0 +1,30 @@
+---
+- name: install mysql php
+  action: yum name=php-mysql state=installed
+- name: download wordpress
+  action: get_url url=http://${brainpage_repo}/repo/src/wordpress.tar.gz dest=/usr/local/src/wordpress.tar.gz
+
+- name: does wordpress already exist
+  action: shell test -e $ws_root/$ws_dir
+  register: wordpress_exists
+  ignore_errors: True
+
+- name: untar to website directory
+  action: shell test -e $ws_root/$ws_dir && echo "nothing" || tar -xzf /usr/local/src/wordpress.tar.gz -C $ws_root
+  only_if: "${wordpress_exists.rc} != 0"
+
+- name: rename directory to ws_dir
+  action: shell mv $ws_root/wordpress $ws_root/$ws_dir
+  only_if: "${wordpress_exists.rc} != 0"
+
+- name: give permissions to nginx
+  action: file path=$ws_root/$ws_dir state=directory owner=nginx
+
+- name: create database
+  action: mysql_db name=$mysql_database state="present" login_host=${internal_ip}
+
+- name: add mysql user
+  action: mysql_user name=$mysql_user password=$mysql_password priv="${mysql_database}.*:ALL"  host=$inventory_hostname state=present login_host=${internal_ip}
+
+- name: copy config
+  action: template src="common/templates/wordpress.config.j2" dest=$ws_root/$ws_dir/wp-config.php owner=nginx

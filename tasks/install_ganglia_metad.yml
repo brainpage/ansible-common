@@ -1,6 +1,6 @@
 ---
-- name: install $item
-  action: yum pkg=$item state=installed
+- name: install gmetad
+  action: yum name=$item state=installed
   with_items:
     - ganglia-gmetad
     - php-gd
@@ -8,13 +8,23 @@
 - name: copy config file
   action: template src='common/templates/gmetad.conf.j2' dest='/etc/ganglia/gmetad.conf' mode=0644
 
-- name: copy web installer
-  action: copy src='common/files/gmond_web_install.sh' dest='/usr/local/src/gmond_web_install.sh' mode=0755
 - name: create graph.d directory
   action: file state="directory" dest="/etc/ganglia/graph.d"
 
-- name: run web installer
-  action: shell /usr/local/src/gmond_web_install.sh
+- name: install ganglia-web
+  action: yum name=ganglia-web state=installed
+
+- name: set permissions correctly for ganglia php
+  action: file dest="/var/lib/ganglia/dwoo/$item" state=directory owner=nginx group=nginx
+  with_items:
+    - cache
+    - compiled
+
+- name: set permissions correctly for conf directory
+  action: file dest="/var/lib/ganglia/conf" state=directory owner=nginx group=nginx
+
+- name: copy conf php
+  action: copy src="files/gmetad.conf.php" dest="/var/www/html/ganglia/conf.php"
 
 - name: start ganglia
   action: service name=gmetad enabled=yes state=started

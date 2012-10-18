@@ -1,0 +1,2 @@
+*/2 * * * * root /usr/local/bin/network_gmetric.sh
+*/2 * * * * root /usr/local/bin/disk_gmetric.sh

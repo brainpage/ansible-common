@@ -1,0 +1,8 @@
+---
+- name: install ruby
+  action: yum name=$item state=installed
+  with_items:
+    - ruby
+    - ruby-irb
+    - ruby-devel
+    - rubygems

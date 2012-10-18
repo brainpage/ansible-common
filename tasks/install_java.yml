@@ -4,11 +4,17 @@
 #   java_version: 7u5
 #   java_baseurl: http://somewhere_to_wget_install_file/
 ## install ruby with rbenv and uninstall system default
-- name: install wget
-  action: yum pkg=wget state=installed
-- name: system java not installed
-  action: yum pkg=java state=removed
-- name: copy java install script
-  action: template src='common/templates/install_java.sh.j2' dest='/usr/local/src/install_java.sh' mode=0755
-- name: run install script
-  action: shell /usr/local/src/install_java.sh
+- name: remove default java
+  action: yum name=java state=removed
+  tags:
+    - openjdk
+- name: install java
+  action: yum name=jdk state=installed
+  tags:
+    - jdk
+
+
+- name: install java_home in profile
+  action: file src=common/files/java.sh dest/etc/profile.d/java.sh
+  tags:
+    - jdk

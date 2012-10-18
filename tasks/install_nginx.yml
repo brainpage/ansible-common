@@ -1,10 +1,31 @@
 ---
 # install monit and munin
-- name: install nginx
-  action: yum pkg=nginx state=installed
+- name: install pcre-devel
+  action: yum name=pcre-devel state=installed
 
-- name: install $item
-  action: yum pkg=$item state=installed
+- name: download nginx files
+  action: get_url url=http://${brainpage_repo}/repo/src/patched_nginx.tar.gz dest=/usr/local/src/patched_nginx.tar.gz
+
+- name: untar nginx
+  action: shell test -d /usr/local/src/patched_nginx && echo "done" || tar -xzf /usr/local/src/patched_nginx.tar.gz -C /usr/local/src
+
+- name: build and install nginx
+  action: shell /usr/local/src/patched_nginx/build.sh 
+
+- name: link config directory
+  action: file src=/usr/local/nginx/conf dest=/etc/nginx state=link
+
+- name: copy init script
+  action: copy src=common/files/nginx.init.d dest=/etc/init.d/nginx mode=755
+ 
+- name: make conf.d directory
+  action: file path=/etc/nginx/conf.d state=directory
+
+- name: make conf.tcp.d directory
+  action: file path=/etc/nginx/conf.tcp.d state=directory
+
+- name: install php
+  action: yum name=$item state=installed
   with_items:
     - php
     - spawn-fcgi
@@ -22,13 +43,27 @@
   with_items:
     - 80
     - 443
+  tags:
+    - iptables
 
 - name: add file to monit
   action: copy src="common/files/nginx.monit.conf" dest="/etc/monit.d/nginx.conf"
   notify:
     - reload monit
 
-- name: add ganglie graph config
+- name: create nginx group
+  action: group name=nginx state=present
+
+- name: create nginx user
+  action: user name=nginx group=nginx createhome=no 
+
+- name: create nginx log file directory
+  action: file path=/var/log/nginx owner=nginx state=directory
+
+- name: make sure ganglia graph directory exists
+  action: file dest="/etc/ganglia/graph.d" state=directory
+
+- name: add ganglia graph config
   action: copy src="common/files/nginx.ganglia.graph.$item" dest="/etc/ganglia/graph.d/$item"
   with_items:
     - nginx_accepts_ratio_report.php
@@ -51,6 +86,4 @@
 - name: start php_cgi
   action: service name=php_cgi state=started enabled=yes
 
-- name: start nginx
-  action: service name=nginx state=started enabled=yes
 

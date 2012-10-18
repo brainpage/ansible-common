@@ -1,7 +1,18 @@
 ---
-- name: install $item
-  action: yum pkg=$item state=installed
+- name: install utils
+  action: yum name=$item state=installed
   with_items:
     - wget
     - vim
+    - telnet
+    - git
+    - "MySQL-python"
+    - traceroute
+    - screen
+  tags:
+    - utils
 
+- name: open iptables for git
+  action: iptables chain="OUTPUT" tdport=9418 
+  tags:
+    - utils
